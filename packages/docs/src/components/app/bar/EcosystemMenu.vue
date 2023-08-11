@@ -27,6 +27,11 @@
   const items = computed(() => ([
     { subheader: t('social') },
     {
+      title: 'X',
+      href: 'https://x.com/vuetifyjs',
+      appendIcon: '$x',
+    },
+    {
       title: 'Discord',
       href: 'https://community.vuetifyjs.com/',
       appendIcon: 'mdi-discord',
@@ -37,17 +42,17 @@
       appendIcon: 'mdi-github',
     },
     {
-      title: 'twitter',
-      href: 'https://twitter.com/vuetifyjs',
-      appendIcon: 'mdi-twitter',
-    },
-    {
       title: 'reddit',
       href: 'https://reddit.com/r/vuetifyjs',
       appendIcon: 'mdi-reddit',
     },
     { divider: true },
     { subheader: t('tools') },
+    {
+      title: 'pastebin',
+      href: 'https://bin.vuetifyjs.com/',
+      appendIcon: 'mdi-delete-outline',
+    },
     {
       title: 'playground',
       href: 'https://play.vuetifyjs.com/',

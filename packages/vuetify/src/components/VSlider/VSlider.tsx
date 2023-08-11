@@ -35,7 +35,7 @@ export const makeVSliderProps = propsFactory({
     type: [Number, String],
     default: 0,
   },
-}, 'v-slider')
+}, 'VSlider')
 
 export const VSlider = genericComponent<VSliderSlots>()({
   name: 'VSlider',
@@ -59,10 +59,8 @@ export const VSlider = genericComponent<VSliderSlots>()({
       props,
       'modelValue',
       undefined,
-      v => {
-        const value = typeof v === 'string' ? parseFloat(v) : v == null ? steps.min.value : v
-
-        return steps.roundValue(value)
+      value => {
+        return steps.roundValue(value == null ? steps.min.value : value)
       },
     )
 

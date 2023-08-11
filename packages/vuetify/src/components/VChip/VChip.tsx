@@ -32,6 +32,10 @@ import { Ripple } from '@/directives/ripple'
 import { computed } from 'vue'
 import { EventProp, genericComponent, propsFactory } from '@/util'
 
+// Types
+import type { PropType } from 'vue'
+import type { RippleDirectiveBinding } from '@/directives/ripple'
+
 export type VChipSlots = {
   default: {
     isSelected: boolean | undefined
@@ -76,7 +80,7 @@ export const makeVChipProps = propsFactory({
   prependAvatar: String,
   prependIcon: IconValue,
   ripple: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<RippleDirectiveBinding['value']>,
     default: true,
   },
   text: String,
@@ -99,7 +103,7 @@ export const makeVChipProps = propsFactory({
   ...makeTagProps({ tag: 'span' }),
   ...makeThemeProps(),
   ...makeVariantProps({ variant: 'tonal' } as const),
-}, 'v-chip')
+}, 'VChip')
 
 export const VChip = genericComponent<VChipSlots>()({
   name: 'VChip',
@@ -137,6 +141,8 @@ export const VChip = genericComponent<VChipSlots>()({
     const closeProps = computed(() => ({
       'aria-label': t(props.closeLabel),
       onClick (e: MouseEvent) {
+        e.stopPropagation()
+
         isActive.value = false
 
         emit('click:close', e)
@@ -223,7 +229,7 @@ export const VChip = genericComponent<VChipSlots>()({
                     defaults={{
                       VIcon: { icon: props.filterIcon },
                     }}
-                    v-slot:default={ slots.filter }
+                    v-slots:default={ slots.filter }
                   />
                 )}
               </div>

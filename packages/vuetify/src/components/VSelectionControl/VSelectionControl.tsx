@@ -21,20 +21,23 @@ import {
   filterInputAttrs,
   genericComponent,
   getUid,
+  matchesSelector,
   propsFactory,
-  SUPPORTS_FOCUS_VISIBLE,
   useRender,
   wrapInArray,
 } from '@/util'
 
 // Types
-import type { CSSProperties, ExtractPropTypes, Ref, WritableComputedRef } from 'vue'
+import type { CSSProperties, ExtractPropTypes, Ref, VNode, WritableComputedRef } from 'vue'
+import type { IconValue } from '@/composables/icons'
 import type { GenericProps } from '@/util'
 
 export type SelectionControlSlot = {
   model: WritableComputedRef<any>
   textColorClasses: Ref<string[]>
   textColorStyles: Ref<CSSProperties>
+  inputNode: VNode
+  icon: IconValue | undefined
   props: {
     onBlur: (e: Event) => void
     onFocus: (e: FocusEvent) => void
@@ -48,7 +51,7 @@ export type VSelectionControlSlots = {
   input: SelectionControlSlot
 }
 
-export const makeSelectionControlProps = propsFactory({
+export const makeVSelectionControlProps = propsFactory({
   label: String,
   trueValue: null,
   falseValue: null,
@@ -56,10 +59,10 @@ export const makeSelectionControlProps = propsFactory({
 
   ...makeComponentProps(),
   ...makeSelectionControlGroupProps(),
-}, 'v-selection-control')
+}, 'VSelectionControl')
 
 export function useSelectionControl (
-  props: ExtractPropTypes<ReturnType<typeof makeSelectionControlProps>> & {
+  props: ExtractPropTypes<ReturnType<typeof makeVSelectionControlProps>> & {
     'onUpdate:modelValue': ((val: any) => void) | undefined
   }
 ) {
@@ -138,7 +141,7 @@ export const VSelectionControl = genericComponent<new <T>(
 
   inheritAttrs: false,
 
-  props: makeSelectionControlProps(),
+  props: makeVSelectionControlProps(),
 
   emits: {
     'update:modelValue': (val: any) => true,
@@ -168,10 +171,7 @@ export const VSelectionControl = genericComponent<new <T>(
 
     function onFocus (e: FocusEvent) {
       isFocused.value = true
-      if (
-        !SUPPORTS_FOCUS_VISIBLE ||
-        (SUPPORTS_FOCUS_VISIBLE && (e.target as HTMLElement).matches(':focus-visible'))
-      ) {
+      if (matchesSelector(e.target as HTMLElement, ':focus-visible') !== false) {
         isFocusVisible.value = true
       }
     }
@@ -196,6 +196,24 @@ export const VSelectionControl = genericComponent<new <T>(
         })
         : props.label
       const [rootAttrs, inputAttrs] = filterInputAttrs(attrs)
+
+      const inputNode = (
+        <input
+          ref={ input }
+          checked={ model.value }
+          disabled={ !!(props.readonly || props.disabled) }
+          id={ id.value }
+          onBlur={ onBlur }
+          onFocus={ onFocus }
+          onInput={ onInput }
+          aria-disabled={ !!(props.readonly || props.disabled) }
+          type={ props.type }
+          value={ trueValue.value }
+          name={ props.name }
+          aria-checked={ props.type === 'checkbox' ? model.value : undefined }
+          { ...inputAttrs }
+        />
+      )
 
       return (
         <div
@@ -234,34 +252,24 @@ export const VSelectionControl = genericComponent<new <T>(
                 ['center', 'circle'],
               ]}
             >
-              { icon.value && <VIcon key="icon" icon={ icon.value } /> }
-
-              <input
-                ref={ input }
-                checked={ model.value }
-                disabled={ props.disabled }
-                id={ id.value }
-                onBlur={ onBlur }
-                onFocus={ onFocus }
-                onInput={ onInput }
-                aria-disabled={ props.readonly }
-                type={ props.type }
-                value={ trueValue.value }
-                name={ props.name }
-                aria-checked={ props.type === 'checkbox' ? model.value : undefined }
-                { ...inputAttrs }
-              />
-
               { slots.input?.({
                 model,
                 textColorClasses,
                 textColorStyles,
+                inputNode,
+                icon: icon.value,
                 props: {
                   onFocus,
                   onBlur,
                   id: id.value,
                 },
-              } as SelectionControlSlot)}
+              } satisfies SelectionControlSlot) ?? (
+                <>
+                  { icon.value && <VIcon key="icon" icon={ icon.value } /> }
+
+                  { inputNode }
+                </>
+              )}
             </div>
           </div>
 

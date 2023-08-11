@@ -28,7 +28,7 @@ export const makeVWindowItemProps = propsFactory({
   ...makeComponentProps(),
   ...makeGroupItemProps(),
   ...makeLazyProps(),
-}, 'v-window-item')
+}, 'VWindowItem')
 
 export const VWindowItem = genericComponent()({
   name: 'VWindowItem',
@@ -145,7 +145,7 @@ export const VWindowItem = genericComponent()({
       </MaybeTransition>
     ))
 
-    return {}
+    return { groupItem }
   },
 })
 
